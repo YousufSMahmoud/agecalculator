@@ -1,87 +1,93 @@
-const userBirthDate = document.querySelectorAll(".card__input");
-const calculate = document.querySelector(".card__button");
-
-// Start validation
-function isValidDay(day) {
-  if (day > 0 && day < 32) {
-    return true;
+let year = document.getElementById("year");
+let month = document.getElementById("month");
+let day = document.getElementById("day");
+let errorMessage = document.querySelectorAll(".card__errorMessage");
+let button = document.querySelector(".card__button");
+let input = document.querySelectorAll(".card__input");
+let result = document.querySelector(".card__resultValue");
+let isValid = true;
+// validation
+console.log(input);
+function validateYear() {
+  const date = new Date();
+  let maximumYear = date.getFullYear();
+  let minumumYear = 1890;
+  if (year.value > maximumYear || year.value < minumumYear) {
+    errorMessage[2].style.visibility = "visible";
+    errorMessage[2].style.opacity = "1";
+    input[2].classList.add("card__input--error");
+    isValid = false;
   } else {
-    return false;
-  }
-}
-function isValidMonth(month) {
-  if (month > 0 && month < 13) {
-    return true;
-  }
-  return false;
-}
-
-function isValidYear(year) {
-  currentYear = new Date().getFullYear();
-  if (currentYear - year >= 0 && year > 1900) {
-    return true;
-  } else {
-    return false;
-  }
-}
-function isValidDate(yearElement, monthElement, dayElement) {
-  const result = [false, false, false];
-
-  if (!isValidYear(yearElement.value)) {
-    yearElement.classList.add("card__input--error");
-  } else {
-    yearElement.classList.remove("card__input--error");
-    result[0] = true;
-  }
-
-  if (!isValidMonth(monthElement.value)) {
-    monthElement.classList.add("card__input--error");
-  } else {
-    monthElement.classList.remove("card__input--error");
-    result[1] = true;
-  }
-  if (!isValidDay(dayElement.value)) {
-    dayElement.classList.add("card__input--error");
-  } else {
-    dayElement.classList.remove("card__input--error");
-    result[2] = true;
-  }
-  return result.every((item) => item === true);
-}
-
-// End validation
-
-function calculateAge(year, month, age) {
-  let today = new Date();
-  let birthDate = new Date(year, month - 1, age);
-  let yearDiff = today.getFullYear() - birthDate.getFullYear();
-  let monthDiff = today.getMonth() - birthDate.getMonth();
-  let daysDiff = today.getDate() - birthDate.getDate();
-  if (
-    monthDiff < 0 ||
-    // (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    (monthDiff === 0 && daysDiff > 0)
-  ) {
-    yearDiff--;
-  }
-  return yearDiff;
-}
-function clickHandler() {
-  const day = document.querySelector(".card__input[name='day']");
-  const month = document.querySelector(".card__input[name='month'");
-  const year = document.querySelector(".card__input[name='year']");
-  const result = document.querySelector(".card__resultValue");
-
-  if (isValidDate(year, month, day)) {
-    result.textContent = calculateAge(year.value, month.value, day.value);
-  } else {
-    result.textContent = "-_-";
+    input[2].classList.remove("card__input--error");
+    errorMessage[2].style.visibility = "hidden";
+    errorMessage[2].style.opacity = "0";
   }
 }
 
-userBirthDate.forEach((card) => {
-  card.addEventListener("keydown", (e) => {
-    e.key === "Enter" && clickHandler();
+function validateMonth() {
+  const date = new Date();
+  let maximumMonth = 12;
+  let minumumMonth = 1;
+  if (month.value > maximumMonth || month.value < minumumMonth) {
+    errorMessage[1].style.visibility = "visible";
+    errorMessage[1].style.opacity = "1";
+    input[1].classList.add("card__input--error");
+    isValid = false;
+  } else {
+    input[1].classList.remove("card__input--error");
+    errorMessage[1].style.visibility = "hidden";
+    errorMessage[1].style.opacity = "0";
+  }
+}
+function validateDay() {
+  const date = new Date();
+  let maximumDay = 31;
+  let minumumDay = 1;
+  if (day.value > maximumDay || day.value < minumumDay) {
+    errorMessage[0].style.visibility = "visible";
+    errorMessage[0].style.opacity = "1";
+    input[0].classList.add("card__input--error");
+    isValid = false;
+  } else {
+    input[0].classList.remove("card__input--error");
+    errorMessage[0].style.visibility = "hidden";
+    errorMessage[0].style.opacity = "0";
+  }
+}
+function validate() {
+  isValid = true;
+  validateYear();
+  validateMonth();
+  validateDay();
+}
+function calculateAge() {
+  validate();
+  if (isValid) {
+    const date = new Date();
+    let birthYear = year.value;
+    let currentYear = date.getFullYear();
+    let birthMonth = month.value;
+    let currentMonth = date.getMonth() + 1;
+    let birthDay = day.value;
+    let currentDay = date.getDate();
+    yearDifferent = currentYear - birthYear;
+    monthDifferent = currentMonth - birthMonth;
+    dayDifferent = currentDay - birthDay;
+    if (monthDifferent < 0) {
+      yearDifferent--;
+    } else if (monthDifferent === 0 && dayDifferent < 0) {
+      yearDifferent--;
+    }
+    result.textContent = yearDifferent;
+  } else {
+    result.textContent = "--";
+  }
+}
+button.addEventListener("click", calculateAge);
+input.forEach((item) => {
+  item.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      calculateAge();
+    }
   });
 });
-calculate.addEventListener("click", clickHandler);
